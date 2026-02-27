@@ -6,9 +6,9 @@
 # ================================================
 
 # --- Configuración ---
-TEMPLATE_DIR="/mnt/c/Users/PC/Documents/LaTeX/templates"
-PROJECTS_DIR="/mnt/c/Users/PC/Documents/LaTeX/latex_projects"
-CONFIG_FILE="/mnt/c/Users/PC/Documents/LaTeX/config.yaml"
+TEMPLATE_DIR="/mnt/c/Users/PC/Documents/LaTeX_env/templates"
+PROJECTS_DIR="/mnt/c/Users/PC/Documents/LaTeX_env/latex_projects"
+CONFIG_FILE="/mnt/c/Users/PC/Documents/LaTeX_env/config.yaml"
 
 # --- Funciones ---
 error_exit() {
@@ -54,6 +54,23 @@ format_authors_for_latex() {
     else
         echo "$authors_str"
     fi
+}
+
+# Función para validar nombre del proyecto (solo minúsculas, números y guión bajo)
+validate_project_name() {
+    local name="$1"
+    if ! echo "$name" | grep -qE '^[a-z0-9_]+$'; then
+        echo "✗ Nombre inválido. Solo se permiten letras minúsculas, números y guión bajo (_)."
+        return 1
+    fi
+    return 0
+}
+
+# Función para escapar título para LaTeX (escapar guión bajo)
+escape_latex_title() {
+    local title="$1"
+    # Escapar guión bajo
+    echo "$title" | sed 's/_/\\_/g'
 }
 
 # Función para actualizar config.yaml
@@ -283,9 +300,21 @@ echo ""
 echo "================================================"
 echo ""
 
-# --- Nombre del proyecto ---
-read -p "Nombre del proyecto: " project_name
-[ -z "$project_name" ] && error_exit "El nombre no puede estar vacío."
+# --- Nombre del proyecto (carpeta) ---
+while true; do
+    read -p "Nombre del proyecto (solo minúsculas, números y guión bajo _): " project_name
+    [ -z "$project_name" ] && echo "✗ El nombre no puede estar vacío." && continue
+    if validate_project_name "$project_name"; then
+        break
+    fi
+done
+
+# --- Título del documento ---
+read -p "Título del documento (texto libre, puede usar mayúsculas, espacios, etc.): " DOCUMENT_TITLE
+[ -z "$DOCUMENT_TITLE" ] && error_exit "El título del documento no puede estar vacío."
+
+# Escapar título para LaTeX (escapar guión bajo)
+DOCUMENT_TITLE_ESCAPED=$(escape_latex_title "$DOCUMENT_TITLE")
 
 # --- Ruta de destino (mostrar opciones) ---
 echo ""
@@ -373,10 +402,10 @@ if [[ "$use_mermaid" =~ ^[Ss]$ ]]; then
     
     # Mostrar advertencia sobre dependencias
     echo ""
-    echo "⚠ ADVERTENCIA: Para usar Mermaid necesita:"
-    echo "   1. Node.js y npm instalados"
-    echo "   2. Mermaid CLI: npm install -g @mermaid-js/mermaid-cli"
-    echo "   3. En Windows, ejecute templates/mermaid/setup.bat para configurar"
+    echo "⚠ ADVERTENCIA: Para usar Mermaid necesita las siguientes dependencias:"
+    echo "   1. Node.js, npm y Mermaid CLI (instalación automática en Windows)"
+    echo "   2. Perl (para latexmk)"
+    echo "   3. En Windows, ejecute como Administrador: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\setup-latex-mermaid.ps1"
     echo ""
     
     MERMAID_ENABLED=true
@@ -408,11 +437,11 @@ find "$project_path" -name "*.tex" -type f | while read -r tex_file; do
     echo "    Procesando: $(basename "$tex_file")"
     
     # 1. Título en texto plano
-    sed -i "s|Título del Proyecto|$project_name|g" "$tex_file"
-    sed -i "s|Título del Documento|$project_name|g" "$tex_file"
-    sed -i "s|Project Title|$project_name|g" "$tex_file"
-    sed -i "s|Título del Ensayo|$project_name|g" "$tex_file"
-    sed -i "s|Asunto de la carta|$project_name|g" "$tex_file"
+    sed -i "s|Título del Proyecto|$DOCUMENT_TITLE_ESCAPED|g" "$tex_file"
+    sed -i "s|Título del Documento|$DOCUMENT_TITLE_ESCAPED|g" "$tex_file"
+    sed -i "s|Project Title|$DOCUMENT_TITLE_ESCAPED|g" "$tex_file"
+    sed -i "s|Título del Ensayo|$DOCUMENT_TITLE_ESCAPED|g" "$tex_file"
+    sed -i "s|Asunto de la carta|$DOCUMENT_TITLE_ESCAPED|g" "$tex_file"
     
     # 2. Autor e información personal
     sed -i "s|Nombre del Autor|$AUTHOR_LATEX|g" "$tex_file"
@@ -483,10 +512,10 @@ MAIN_TEX_FILE="$project_path/main.tex"
 if [ -f "$MAIN_TEX_FILE" ]; then
     
     # 1. Título en texto plano
-    sed -i "s|Título del Proyecto|$project_name|g" "$MAIN_TEX_FILE"
-    sed -i "s|Título del Documento|$project_name|g" "$MAIN_TEX_FILE"
-    sed -i "s|Project Title|$project_name|g" "$MAIN_TEX_FILE"
-    sed -i "s|Título del Ensayo|$project_name|g" "$MAIN_TEX_FILE"
+    sed -i "s|Título del Proyecto|$DOCUMENT_TITLE_ESCAPED|g" "$MAIN_TEX_FILE"
+    sed -i "s|Título del Documento|$DOCUMENT_TITLE_ESCAPED|g" "$MAIN_TEX_FILE"
+    sed -i "s|Project Title|$DOCUMENT_TITLE_ESCAPED|g" "$MAIN_TEX_FILE"
+    sed -i "s|Título del Ensayo|$DOCUMENT_TITLE_ESCAPED|g" "$MAIN_TEX_FILE"
     
     # 2. Autor e información personal
     sed -i "s|Nombre del Autor|$AUTHOR_LATEX|g" "$MAIN_TEX_FILE"
@@ -548,7 +577,7 @@ if [ -f "$MAIN_TEX_FILE" ]; then
         echo "  Actualizando comandos LaTeX..."
         
         # Actualizar cada comando \newcommand
-        [ -n "$project_name" ] && sed -i "s|\\\\newcommand{\\\\\\titulo}{[^}]*}|\\\\newcommand{\\\\\\titulo}{$project_name}|" "$MAIN_TEX_FILE"
+        [ -n "$DOCUMENT_TITLE" ] && sed -i "s|\\\\newcommand{\\\\\\titulo}{[^}]*}|\\\\newcommand{\\\\\\titulo}{$DOCUMENT_TITLE_ESCAPED}|" "$MAIN_TEX_FILE"
         [ -n "$AUTHOR_LATEX" ] && sed -i "s|\\\\newcommand{\\\\\\autor}{[^}]*}|\\\\newcommand{\\\\\\autor}{$AUTHOR_LATEX}|" "$MAIN_TEX_FILE"
         [ -n "$STUDENT_ID" ] && sed -i "s|\\\\newcommand{\\\\\\codigo}{[^}]*}|\\\\newcommand{\\\\\\codigo}{$STUDENT_ID}|" "$MAIN_TEX_FILE"
         [ -n "$FACULTY" ] && sed -i "s|\\\\newcommand{\\\\\\programa}{[^}]*}|\\\\newcommand{\\\\\\programa}{$FACULTY}|" "$MAIN_TEX_FILE"
@@ -573,7 +602,7 @@ if [ -f "$MAIN_TEX_FILE" ]; then
         done
         echo ""
         echo "  Comandos actualizados automáticamente:"
-        echo "    • \\newcommand{\\titulo}{...} → \\newcommand{\\titulo}{$project_name}"
+        echo "    • \\newcommand{\\titulo}{...} → \\newcommand{\\titulo}{$DOCUMENT_TITLE_ESCAPED}"
         echo "    • \\newcommand{\\autor}{...} → \\newcommand{\\autor}{$AUTHOR_LATEX}"
         echo "    • \\newcommand{\\universidad}{...} → \\newcommand{\\universidad}{$INSTITUTION}"
         echo "    • \\newcommand{\\programa}{...} → \\newcommand{\\programa}{$FACULTY}"
@@ -600,7 +629,7 @@ else
 \usepackage{graphicx}
 \usepackage{hyperref}
 
-\title{$project_name}
+\title{$DOCUMENT_TITLE_ESCAPED}
 \author{$BASIC_AUTHOR}
 \date{\today}
 
@@ -639,7 +668,8 @@ echo "  ✅ PROYECTO CREADO EXITOSAMENTE"
 echo "================================================"
 echo ""
 echo "📌 Detalles:"
-echo "   • Nombre: $project_name"
+echo "   • Nombre (carpeta): $project_name"
+echo "   • Título del documento: $DOCUMENT_TITLE"
 echo "   • Ubicación: $project_path"
 echo "   • Plantilla: $selected_template"
 echo ""
@@ -658,10 +688,12 @@ echo ""
 
 if [ "$MERMAID_ENABLED" = true ]; then
     echo "🔧 Configuración Mermaid:"
-    echo "   1. Instalar Mermaid CLI: npm install -g @mermaid-js/mermaid-cli"
+    echo "   1. Dependencias: Node.js, npm, Mermaid CLI, Perl (instalación automática en Windows)"
     echo "   2. Crear diagramas en assets/mermaid/*.mmd"
     echo "   3. Compilar con: latexmk -pdf main.tex"
     echo "   4. Los diagramas se generan automáticamente en assets/diagrams/"
-    echo "   5. En Windows, ejecute: templates/mermaid/setup.bat"
+    echo "   5. En Windows, ejecute como Administrador:"
+    echo "      Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass"
+    echo "      .\setup-latex-mermaid.ps1"
     echo ""
 fi

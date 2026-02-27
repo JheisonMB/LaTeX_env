@@ -18,7 +18,7 @@ flowchart TD
     H --> J[Configurar placeholders]
     I --> J
     J --> K[Generar proyecto configurado]
-    M --> N[Fin]
+    K --> M[Fin]
 ```
 
 ## Diagrama de Secuencia - Creación de Proyecto
@@ -60,19 +60,20 @@ sequenceDiagram
 ## Instalación y Configuración
 
 ### 1. Preparación del Entorno (Script Automático)
-Para facilitar la preparación del ambiente en Windows, se incluye el script `setup.bat` (ubicado en `templates/mermaid/`).
+Para configurar todas las dependencias en Windows, ejecuta el script PowerShell `setup-latex-mermaid.ps1` como **Administrador**:
 
-Este script automatiza la verificación e instalación de dependencias críticas:
-- Verifica la existencia de **Node.js** y **Perl**.
-- Instala **Mermaid CLI** globalmente si no se encuentra.
-- Configura las carpetas necesarias para los diagramas.
-
-### 2. Configurar MiKTeX en Windows 
-Se recomienda usar **winget** para una instalación rápida desde PowerShell:
 ```powershell
-winget install MiKTeX.MiKTeX
+# Ejecutar PowerShell como Administrador
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\setup-latex-mermaid.ps1
 ```
-Alternativamente, descargar desde [miktex.org](https://miktex.org).
+
+Este script verifica e instala automáticamente:
+- **MiKTeX** (distribución LaTeX completa con pdflatex)
+- **Node.js y npm** (para Mermaid CLI)
+- **Perl** (requerido por latexmk)
+- **Mermaid CLI** (para generar diagramas)
+- Actualiza paquetes MiKTeX y configura el entorno
 
 *Nota: No es necesario configurar MiKTeX dentro de WSL, ya que la compilación se realiza nativamente en Windows con VSCode.*
 

@@ -50,11 +50,8 @@ latexmk -c
 
 ### Mermaid Diagrams Compilation
 ```bash
-# Install Mermaid CLI (if not installed)
-npm install -g @mermaid-js/mermaid-cli
-
-# Compile Mermaid diagrams manually
-mmdc -i assets/mermaid/diagram.mmd -o assets/diagrams/diagram.png -w 1200
+# Configurar dependencias automáticamente (Windows)
+# Ejecutar como Administrador: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\setup-latex-mermaid.ps1
 
 # Full compilation with Mermaid support
 latexmk -pdf document.tex  # Uses .latexmkrc configuration
