@@ -45,16 +45,13 @@ latexmk -c
 ### Project Creation
 ```bash
 # Create new LaTeX project from template
-./create_latex_project.sh
+.\create_latex_project.ps1
 ```
 
 ### Mermaid Diagrams Compilation
 ```bash
-# Install Mermaid CLI (if not installed)
-npm install -g @mermaid-js/mermaid-cli
-
-# Compile Mermaid diagrams manually
-mmdc -i assets/mermaid/diagram.mmd -o assets/diagrams/diagram.png -w 1200
+# Configurar dependencias automáticamente (Windows)
+# Ejecutar como Administrador: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\setup-latex-mermaid.ps1
 
 # Full compilation with Mermaid support
 latexmk -pdf document.tex  # Uses .latexmkrc configuration
@@ -157,7 +154,7 @@ explorer.exe main.pdf
 ## Project Organization
 
 ### Creating New Projects
-1. Use `create_latex_project.sh` for new projects
+1. Use `create_latex_project.ps1` for new projects
 2. Follow existing template structure
 3. Place projects in appropriate institution directory
 4. Update documentation if adding new template types
@@ -233,7 +230,7 @@ pdflatex main.tex | grep -E "Label.*multiply defined|Reference.*undefined"
 1. **Study existing templates** for patterns
 2. **Include comprehensive documentation**
 3. **Test compilation** with multiple LaTeX engines
-4. **Add to `create_latex_project.sh`** if it's a general-purpose template
+4. **Add to `create_latex_project.ps1`** if it's a general-purpose template
 
 ### When Working with Projects
 1. **Respect institution-specific requirements**
@@ -265,7 +262,7 @@ pdflatex main.tex | grep -E "Label.*multiply defined|Reference.*undefined"
 ### Essential Commands
 ```bash
 # Create project
-./create_latex_project.sh
+.\create_latex_project.ps1
 
 # Compile
 pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
@@ -280,7 +277,7 @@ wslview main.pdf
 ### Key Files
 - `templates/` - Source for all templates
 - `latex_projects/` - Completed projects by institution (ignored in git)
-- `create_latex_project.sh` - Project creation script
+- `create_latex_project.ps1` - Project creation script
 - `.gitignore` - Git ignore rules for LaTeX
 - `.latexmkrc` - Mermaid compilation configuration
 
