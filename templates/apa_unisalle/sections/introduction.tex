@@ -1,0 +1,33 @@
+\chapter{Introducción}
+\label{chap:introduccion}
+\section{Contextualización}Agregue la contextualización.
+
+\paragraph{Ejemplo de Código en Python}
+Aquí hay un ejemplo de cómo se podría incluir código Python utilizando el paquete \texttt{listings}:
+
+\begin{lstlisting}[language=Python, caption=Ejemplo de función para análisis de datos, label=lst:data-analysis]
+import pandas as pd
+
+def analyze_data(file_path):
+    """Función para leer y analizar datos de un archivo CSV."""
+    data = pd.read_csv(file_path)
+    
+    # Estadísticas básicas
+    summary = data.describe()
+    
+    # Análisis de valores faltantes
+    missing = data.isnull().sum()
+    
+    return summary, missing
+\end{lstlisting}
+
+\section{Planteamiento del Problema}Describa el problema.
+\section{Justificación}Explique la importancia.
+\section{Objetivos}
+\subsection{Objetivo General}Defina el objetivo general.
+\subsection{Objetivos Específicos}
+\begin{enumerate}
+\item Objetivo 1
+\item Objetivo 2
+\item Objetivo 3
+\end{enumerate}

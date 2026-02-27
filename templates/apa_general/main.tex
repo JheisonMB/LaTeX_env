@@ -1,0 +1,82 @@
+%% main.tex - Plantilla APA 7 General
+%% Plantilla genérica para proyectos académicos en formato APA 7
+
+\documentclass[a4paper,12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{lmodern}
+\usepackage{longtable}
+\usepackage{microtype}
+\usepackage[nottoc]{tocbibind}
+\usepackage{titlesec}
+\usepackage{url}
+\usepackage{csquotes}
+
+\geometry{top=3cm,bottom=3cm,left=3cm,right=3cm}
+
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-30pt}{20pt}
+\titleformat{\section}[block]{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}[block]{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\numberwithin{equation}{chapter}
+\numberwithin{figure}{chapter}
+\numberwithin{table}{chapter}
+
+\pagestyle{fancy}
+\fancyhf{}
+\cfoot{\thepage}
+
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\begin{document}
+
+\title{Título del Documento}
+\author{Autor Principal\\Coautor (si aplica)}
+\date{\today}
+\maketitle
+\thispagestyle{empty}\newpage
+
+\chapter*{Resumen}\addcontentsline{toc}{chapter}{Resumen}
+Resumen del documento. Debe ser entre 150-250 palabras.
+
+\textit{Palabras clave}: palabra1, palabra2, palabra3
+
+\tableofcontents\thispagestyle{empty}
+\listoffigures\thispagestyle{empty}
+\listoftables\thispagestyle{empty}
+
+\chapter{Introducción}
+\section{Background}
+\section{Problema}
+\section{Objetivos}
+
+\chapter{Revisión de Literatura}
+\section{Teoría}
+\section{Trabajos Relacionados}
+
+\chapter{Metodología}
+\section{Enfoque}
+\section{Resultados Esperados}
+
+\chapter{Resultados}
+\chapter{Discusión}
+\chapter{Conclusiones}
+
+\chapter*{Referencias}\addcontentsline{toc}{chapter}{Referencias}
+\bibliographystyle{apa}
+\bibliography{references}
+\end{document}
