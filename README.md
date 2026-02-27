@@ -59,14 +59,22 @@ sequenceDiagram
 
 ## Instalación y Configuración
 
-### 1. Configurar MiKTeX en Windows 
-1. Descargar e instalar MiKTeX desde [miktex.org](https://miktex.org)
-2. Configurar PATH para incluir binarios de MiKTeX
-3. En WSL, configurar alias para usar MiKTeX:
-```bash
-echo 'alias pdflatex="/mnt/c/Program\ Files/MiKTeX/miktex/bin/x64/pdflatex.exe"' >> ~/.bashrc
-source ~/.bashrc
+### 1. Preparación del Entorno (Script Automático)
+Para facilitar la preparación del ambiente en Windows, se incluye el script `setup.bat` (ubicado en `templates/mermaid/`).
+
+Este script automatiza la verificación e instalación de dependencias críticas:
+- Verifica la existencia de **Node.js** y **Perl**.
+- Instala **Mermaid CLI** globalmente si no se encuentra.
+- Configura las carpetas necesarias para los diagramas.
+
+### 2. Configurar MiKTeX en Windows 
+Se recomienda usar **winget** para una instalación rápida desde PowerShell:
+```powershell
+winget install MiKTeX.MiKTeX
 ```
+Alternativamente, descargar desde [miktex.org](https://miktex.org).
+
+*Nota: No es necesario configurar MiKTeX dentro de WSL, ya que la compilación se realiza nativamente en Windows con VSCode.*
 
 ## Uso del Sistema
 
