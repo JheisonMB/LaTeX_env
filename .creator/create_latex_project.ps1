@@ -60,32 +60,54 @@ Require $docTitle "El titulo no puede estar vacio."
 
 # ── Destino ──────────────────────────────────────────────────────────────────
 Write-Title "--- Destino ---"
-$existing = @(Get-ChildItem $PROJECTS_DIR -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name)
-if ($existing.Count -gt 0) {
-    for ($i = 0; $i -lt $existing.Count; $i++) { Write-Host "  $($i+1)) $($existing[$i])" }
-    Write-Host "  $($existing.Count+1)) Otro"
+
+function Select-ProjectPath {
+    param([string]$currentPath)
+    
+    $dirs = @(Get-ChildItem $currentPath -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name)
+    
+    Write-Host "`nRuta actual: $($currentPath.Replace($PROJECTS_DIR, 'latex_projects'))" -ForegroundColor Cyan
+    Write-Host "  1) [HERE] - Crear proyecto aquí"
+    Write-Host "  2) [NEW] - Crear nuevo directorio aquí"
+    
+    $offset = 2
+    if ($dirs.Count -gt 0) {
+        for ($i = 0; $i -lt $dirs.Count; $i++) {
+            Write-Host "  $($i+3)) $($dirs[$i])/"
+        }
+        $offset = $dirs.Count + 2
+    }
+    
     do {
-        $sel = Read-Host "Seleccione destino [1-$($existing.Count+1)]"
+        $sel = Read-Host "Seleccione opción [1-$($offset)]"
         try {
             $selInt = [int]$sel
-            $valid = $true
+            $valid = ($selInt -ge 1 -and $selInt -le $offset)
+            if (-not $valid) { Write-Host "  Opción fuera de rango." -ForegroundColor Red }
         } catch {
             Write-Host "  Por favor ingrese un número." -ForegroundColor Red
             $valid = $false
         }
-    } while (-not $valid -or $selInt -lt 1 -or $selInt -gt ($existing.Count + 1))
-    if ($selInt -le $existing.Count) {
-        $projectPath = Join-Path $PROJECTS_DIR "$($existing[$selInt-1])\$projectName"
-    } else {
+    } while (-not $valid)
+    
+    if ($selInt -eq 1) {
+        return $currentPath
+    } elseif ($selInt -eq 2) {
         do {
-            $custom = Read-Host "Ruta en latex_projects/"
-            if (-not $custom) { Write-Host "  La ruta no puede estar vacía." -ForegroundColor Red }
-        } while (-not $custom)
-        $projectPath = Join-Path $PROJECTS_DIR "$custom\$projectName"
+            $newDir = Read-Host "Nombre del nuevo directorio"
+            if (-not $newDir) { Write-Host "  El nombre no puede estar vacío." -ForegroundColor Red }
+        } while (-not $newDir)
+        $newPath = Join-Path $currentPath $newDir
+        New-Item -ItemType Directory -Force -Path $newPath | Out-Null
+        return Select-ProjectPath $newPath
+    } else {
+        $selectedDir = $dirs[$selInt - 3]
+        return Select-ProjectPath (Join-Path $currentPath $selectedDir)
     }
-} else {
-    $projectPath = Join-Path $PROJECTS_DIR $projectName
 }
+
+$destinationPath = Select-ProjectPath $PROJECTS_DIR
+$projectPath = Join-Path $destinationPath $projectName
 
 Require (-not (Test-Path $projectPath)) "El directorio ya existe: $projectPath"
 New-Item -ItemType Directory -Force -Path $projectPath | Out-Null
