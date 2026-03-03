@@ -1,4 +1,4 @@
-# .helpers/config.ps1 - Lectura y escritura de config.yaml
+# .creator/config.ps1 - Lectura y escritura de config.yaml
 
 function Read-Config($configFile) {
     $cfg = @{}

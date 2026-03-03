@@ -1,13 +1,13 @@
 # create_latex_project.ps1 - v1 (Windows)
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$ROOT         = $PSScriptRoot
+$ROOT         = Split-Path $PSScriptRoot -Parent
 $TEMPLATE_DIR = Join-Path $ROOT "templates"
 $PROJECTS_DIR = Join-Path $ROOT "latex_projects"
-$CONFIG_FILE  = Join-Path $ROOT "config.yaml"
+$CONFIG_FILE  = Join-Path $PSScriptRoot "config.yaml"
 
-. "$ROOT\.helpers\config.ps1"
-. "$ROOT\.helpers\placeholders.ps1"
+. "$PSScriptRoot\config.ps1"
+. "$PSScriptRoot\placeholders.ps1"
 
 function Write-Title($msg) { Write-Host "`n$msg" -ForegroundColor Cyan }
 function Require($val, $msg) { if (-not $val) { Write-Host "ERROR: $msg" -ForegroundColor Red; exit 1 } }
@@ -29,7 +29,14 @@ if ($cfg.Count -eq 0) {
     Write-Host "  Autor(es)   : $($cfg['autores'])"
     Write-Host "  Institucion : $($cfg['institucion'])"
     Write-Host "  Facultad    : $($cfg['facultad'])"
-    $change = Read-Host "`n¿Cambiar algun valor? [s/N]"
+    do {
+        $change = Read-Host "`n¿Cambiar algun valor? [s/N]"
+        if ($change -eq '') { $change = 'n' }
+        $validChange = $change -match '^[SsNn]$'
+        if (-not $validChange) {
+            Write-Host "  Por favor ingrese 's' (sí) o 'n' (no)." -ForegroundColor Red
+        }
+    } while (-not $validChange)
     if ($change -match '^[Ss]$') {
         $cfg = Prompt-Config $cfg
         Write-Config $CONFIG_FILE $cfg
@@ -40,7 +47,13 @@ if ($cfg.Count -eq 0) {
 Write-Title "--- Proyecto ---"
 do {
     $projectName = Read-Host "Nombre del proyecto (minusculas, numeros, guion_bajo)"
-} while ($projectName -notmatch '^[a-z0-9_]+$' -and (Write-Host "Nombre invalido." -ForegroundColor Red))
+    if ($projectName -notmatch '^[a-z0-9_]+$') {
+        Write-Host "Nombre invalido. Solo letras minusculas, numeros y guion_bajo." -ForegroundColor Red
+        $valid = $false
+    } else {
+        $valid = $true
+    }
+} while (-not $valid)
 
 $docTitle = Read-Host "Titulo del documento"
 Require $docTitle "El titulo no puede estar vacio."
@@ -51,11 +64,23 @@ $existing = @(Get-ChildItem $PROJECTS_DIR -Directory -ErrorAction SilentlyContin
 if ($existing.Count -gt 0) {
     for ($i = 0; $i -lt $existing.Count; $i++) { Write-Host "  $($i+1)) $($existing[$i])" }
     Write-Host "  $($existing.Count+1)) Otro"
-    $sel = Read-Host "Seleccione destino [1-$($existing.Count+1)]"
-    if ([int]$sel -le $existing.Count) {
-        $projectPath = Join-Path $PROJECTS_DIR "$($existing[[int]$sel-1])\$projectName"
+    do {
+        $sel = Read-Host "Seleccione destino [1-$($existing.Count+1)]"
+        try {
+            $selInt = [int]$sel
+            $valid = $true
+        } catch {
+            Write-Host "  Por favor ingrese un número." -ForegroundColor Red
+            $valid = $false
+        }
+    } while (-not $valid -or $selInt -lt 1 -or $selInt -gt ($existing.Count + 1))
+    if ($selInt -le $existing.Count) {
+        $projectPath = Join-Path $PROJECTS_DIR "$($existing[$selInt-1])\$projectName"
     } else {
-        $custom = Read-Host "Ruta en latex_projects/"
+        do {
+            $custom = Read-Host "Ruta en latex_projects/"
+            if (-not $custom) { Write-Host "  La ruta no puede estar vacía." -ForegroundColor Red }
+        } while (-not $custom)
         $projectPath = Join-Path $PROJECTS_DIR "$custom\$projectName"
     }
 } else {
@@ -70,8 +95,16 @@ Write-Host "  Creado: $projectPath" -ForegroundColor Green
 Write-Title "--- Plantilla ---"
 $templates = @(Get-ChildItem $TEMPLATE_DIR -Directory | Where-Object { $_.Name -ne 'mermaid' } | Select-Object -ExpandProperty Name)
 for ($i = 0; $i -lt $templates.Count; $i++) { Write-Host "  $($i+1)) $($templates[$i])" }
-$tSel = [int](Read-Host "Seleccione plantilla [1-$($templates.Count)]") - 1
-Require ($tSel -ge 0 -and $tSel -lt $templates.Count) "Seleccion invalida."
+do {
+    $tInput = Read-Host "Seleccione plantilla [1-$($templates.Count)]"
+    try {
+        $tSel = [int]$tInput - 1
+        $valid = $true
+    } catch {
+        Write-Host "  Por favor ingrese un número." -ForegroundColor Red
+        $valid = $false
+    }
+} while (-not $valid -or $tSel -lt 0 -or $tSel -ge $templates.Count)
 $selectedTemplate = $templates[$tSel]
 Copy-Item "$TEMPLATE_DIR\$selectedTemplate\*" $projectPath -Recurse -Force
 
@@ -82,12 +115,22 @@ Copy-Item "$TEMPLATE_DIR\$selectedTemplate\*" $projectPath -Recurse -Force
 Write-Host "  Plantilla: $selectedTemplate" -ForegroundColor Green
 
 # ── Mermaid ──────────────────────────────────────────────────────────────────
-$useMermaid = Read-Host "`n¿Incluir soporte Mermaid? [s/N]"
+do {
+    $useMermaid = Read-Host "`n¿Incluir soporte Mermaid? [s/N]"
+    if ($useMermaid -eq '') { $useMermaid = 'n' }
+    $validMermaid = $useMermaid -match '^[SsNn]$'
+    if (-not $validMermaid) {
+        Write-Host "  Por favor ingrese 's' (sí) o 'n' (no)." -ForegroundColor Red
+    }
+} while (-not $validMermaid)
+
 if ($useMermaid -match '^[Ss]$') {
     $latexmkrc = "$TEMPLATE_DIR\mermaid\.latexmkrc"
     if (Test-Path $latexmkrc) { Copy-Item $latexmkrc $projectPath }
     New-Item -ItemType Directory -Force -Path "$projectPath\assets\mermaid","$projectPath\assets\diagrams","$projectPath\assets\images" | Out-Null
     Write-Host "  Mermaid configurado. Compila con: latexmk -pdf main.tex" -ForegroundColor Green
+} else {
+    Write-Host "  Sin soporte Mermaid." -ForegroundColor Yellow
 }
 
 # ── Placeholders ─────────────────────────────────────────────────────────────

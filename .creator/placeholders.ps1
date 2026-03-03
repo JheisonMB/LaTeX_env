@@ -1,4 +1,4 @@
-# .helpers/placeholders.ps1 - Reemplazo de placeholders en archivos .tex
+# .creator/placeholders.ps1 - Reemplazo de placeholders en archivos .tex
 
 function Replace-Placeholders($projectPath, $cfg, $title, $date) {
     $authorLatex = $cfg['autores'] -replace ',\s*', ' \\ '

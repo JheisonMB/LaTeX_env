@@ -6,7 +6,7 @@ Sistema automatizado para crear y gestionar proyectos LaTeX con plantillas preco
 
 ```mermaid
 flowchart TD
-    A[Ejecutar create_latex_project.ps1] --> B{config.yaml existe?}
+    A[Ejecutar create_latex_project.bat] --> B{config.yaml existe?}
     B -->|Sí| C[Cargar configuración]
     B -->|No| D[Solicitar configuración inicial]
     C --> E[Nombre y título del proyecto]
@@ -43,8 +43,7 @@ Instala y valida MiKTeX, Node.js, Perl y Mermaid CLI automáticamente.
 ## Crear un proyecto
 
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\create_latex_project.ps1
+.\create_latex_project.bat
 ```
 
 El script solicita:
@@ -102,13 +101,14 @@ latexmk -pdf main.tex
 
 ```
 LaTeX_env/
-├── .helpers/
+├── .creator/
 │   ├── config.ps1          # Lectura/escritura de config.yaml
-│   └── placeholders.ps1    # Reemplazo de placeholders en .tex
+│   ├── config.yaml         # Configuración del autor
+│   ├── placeholders.ps1    # Reemplazo de placeholders en .tex
+│   └── create_latex_project.ps1  # Script de creación
 ├── templates/              # Plantillas reutilizables
-├── create_latex_project.ps1
+├── create_latex_project.bat
 ├── setup-latex-mermaid.ps1
-├── config.yaml             # Configuración del autor (generado)
 └── latex_projects/         # Proyectos creados (ignorado en git)
 ```
 
