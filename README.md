@@ -1,12 +1,12 @@
 # Sistema de Plantillas LaTeX
 
-Sistema automatizado para crear y gestionar proyectos LaTeX con plantillas preconfiguradas y soporte para diagramas Mermaid. Optimizado para Windows con MiKTeX y VSCode.
+Sistema automatizado multiplataforma para crear y gestionar proyectos LaTeX con plantillas preconfiguradas y soporte para diagramas Mermaid. Compatible con **Windows**, **macOS** y **Linux**.
 
 ## Flujo del proceso
 
 ```mermaid
 flowchart TD
-    A[Ejecutar create_latex_project.bat] --> B{config.yaml existe?}
+    A[Ejecutar script de creación] --> B{config.yaml existe?}
     B -->|Sí| C[Cargar configuración]
     B -->|No| D[Solicitar configuración inicial]
     C --> E[Nombre y título del proyecto]
@@ -20,17 +20,33 @@ flowchart TD
     J --> K[Proyecto listo]
 ```
 
-## Requisitos
+## Requisitos por plataforma
 
+### Windows
 - Windows 10/11
 - [MiKTeX](https://miktex.org/)
 - Node.js + npm
 - Perl (para latexmk)
-- Mermaid CLI (`npm install -g @mermaid-js/mermaid-cli`)
-- VSCode con extensión **LaTeX Workshop**
+- Mermaid CLI
+- VSCode con extensión **LaTeX Workshop** (recomendado)
 
-### Instalación automática de dependencias
+### macOS
+- macOS 10.15+
+- [MacTeX](https://www.tug.org/mactex/) o [BasicTeX](https://www.tug.org/mactex/morepackages.html)
+- Node.js + npm (vía Homebrew)
+- Perl (incluido en macOS)
+- Mermaid CLI
 
+### Linux
+- Distribución moderna (Ubuntu 20.04+, Fedora 35+, Arch, etc.)
+- TeX Live (`texlive-latex-base`, `texlive-latex-extra`)
+- Node.js + npm
+- Perl (generalmente preinstalado)
+- Mermaid CLI
+
+## Instalación automática de dependencias
+
+### Windows
 Ejecuta como **Administrador**:
 
 ```powershell
@@ -38,12 +54,26 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\setup-latex-mermaid.ps1
 ```
 
-Instala y valida MiKTeX, Node.js, Perl y Mermaid CLI automáticamente.
+### macOS / Linux
+Ejecuta en terminal:
+
+```bash
+chmod +x setup-latex-mermaid.sh
+./setup-latex-mermaid.sh
+```
+
+El script detecta automáticamente tu sistema operativo y gestor de paquetes (Homebrew, apt, dnf, pacman) e instala las dependencias necesarias.
 
 ## Crear un proyecto
 
+### Windows
 ```powershell
 .\create_latex_project.bat
+```
+
+### macOS / Linux
+```bash
+./create_latex_project.sh
 ```
 
 El script solicita:
@@ -92,8 +122,15 @@ latex_projects/destino/nombre_proyecto/
 
 ## Compilación
 
+### Windows
 ```powershell
 cd latex_projects\destino\mi_proyecto
+latexmk -pdf main.tex
+```
+
+### macOS / Linux
+```bash
+cd latex_projects/destino/mi_proyecto
 latexmk -pdf main.tex
 ```
 
@@ -102,20 +139,35 @@ latexmk -pdf main.tex
 ```
 LaTeX_env/
 ├── .creator/
-│   ├── config.ps1          # Lectura/escritura de config.yaml
-│   ├── config.yaml         # Configuración del autor
-│   ├── placeholders.ps1    # Reemplazo de placeholders en .tex
-│   └── create_latex_project.ps1  # Script de creación
-├── templates/              # Plantillas reutilizables
-├── create_latex_project.bat
-├── setup-latex-mermaid.ps1
-└── latex_projects/         # Proyectos creados (ignorado en git)
+│   ├── config.ps1              # Lectura/escritura config.yaml (Windows)
+│   ├── config.sh               # Lectura/escritura config.yaml (macOS/Linux)
+│   ├── config.yaml             # Configuración del autor
+│   ├── placeholders.ps1        # Reemplazo de placeholders (Windows)
+│   ├── placeholders.sh         # Reemplazo de placeholders (macOS/Linux)
+│   └── create_latex_project.ps1  # Script de creación (Windows)
+├── templates/                  # Plantillas reutilizables
+├── create_latex_project.bat    # Launcher Windows
+├── create_latex_project.sh     # Launcher macOS/Linux
+├── setup-latex-mermaid.ps1     # Setup Windows
+├── setup-latex-mermaid.sh      # Setup macOS/Linux
+└── latex_projects/             # Proyectos creados (ignorado en git)
 ```
 
 ## Solución de problemas
 
+### Windows
 **Mermaid no genera imágenes**: verifica que `mmdc` esté en PATH ejecutando `setup-latex-mermaid.ps1`.
 
 **LaTeX Workshop no compila**: asegura que `pdflatex` y `latexmk` estén en PATH (MiKTeX instalado).
 
+### macOS / Linux
+**Permisos de ejecución**: ejecuta `chmod +x *.sh` en el directorio raíz.
+
+**LaTeX no encontrado**: después de instalar BasicTeX en macOS, reinicia la terminal o ejecuta `eval "$(/usr/libexec/path_helper)"`.
+
+**mmdc no encontrado**: asegura que Node.js esté instalado y ejecuta `npm install -g @mermaid-js/mermaid-cli`.
+
+### General
 **Caracteres especiales**: todos los templates incluyen `inputenc`, `fontenc` y `babel` en español.
+
+**Scripts no compatibles entre plataformas**: usa `.bat`/`.ps1` en Windows y `.sh` en macOS/Linux. No son intercambiables.

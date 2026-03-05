@@ -43,15 +43,33 @@ latexmk -c
 ```
 
 ### Project Creation
-```bash
-# Create new LaTeX project from template
+
+**Windows:**
+```powershell
 .\create_latex_project.bat
 ```
 
-### Mermaid Diagrams Compilation
+**macOS/Linux:**
 ```bash
+./create_latex_project.sh
+```
+
+### Mermaid Diagrams Compilation
+
+**Windows:**
+```powershell
 # Configurar dependencias automáticamente (Windows)
 # Ejecutar como Administrador: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\setup-latex-mermaid.ps1
+
+# Full compilation with Mermaid support
+latexmk -pdf document.tex  # Uses .latexmkrc configuration
+```
+
+**macOS/Linux:**
+```bash
+# Configurar dependencias automáticamente
+chmod +x setup-latex-mermaid.sh
+./setup-latex-mermaid.sh
 
 # Full compilation with Mermaid support
 latexmk -pdf document.tex  # Uses .latexmkrc configuration
@@ -67,6 +85,9 @@ wslview main.pdf
 
 # Windows (from WSL)
 explorer.exe main.pdf
+
+# macOS
+open main.pdf
 ```
 
 ## Code Style Guidelines
@@ -154,7 +175,7 @@ explorer.exe main.pdf
 ## Project Organization
 
 ### Creating New Projects
-1. Use `create_latex_project.bat` for new projects
+1. Use `create_latex_project.bat` (Windows) o `create_latex_project.sh` (macOS/Linux) for new projects
 2. Follow existing template structure
 3. Place projects in appropriate institution directory
 4. Update documentation if adding new template types
@@ -230,7 +251,9 @@ pdflatex main.tex | grep -E "Label.*multiply defined|Reference.*undefined"
 1. **Study existing templates** for patterns
 2. **Include comprehensive documentation**
 3. **Test compilation** with multiple LaTeX engines
-4. **Add to `.creator/create_latex_project.ps1`** if it's a general-purpose template
+4. **Add to creation scripts** if it's a general-purpose template:
+   - Windows: `.creator/create_latex_project.ps1`
+   - macOS/Linux: `.creator/create_latex_project.sh`
 
 ### When Working with Projects
 1. **Respect institution-specific requirements**
@@ -261,14 +284,22 @@ pdflatex main.tex | grep -E "Label.*multiply defined|Reference.*undefined"
 
 ### Essential Commands
 ```bash
-# Create project
+# Windows
 .\create_latex_project.bat
+
+# macOS/Linux
+./create_latex_project.sh
 ```
 
 ### Key Files
 - `templates/` - Source for all templates
 - `latex_projects/` - Completed projects by institution (ignored in git)
-- `.creator/create_latex_project.ps1` - Project creation script
+- `.creator/create_latex_project.ps1` - Project creation script (Windows)
+- `.creator/create_latex_project.sh` - Project creation script (macOS/Linux)
+- `.creator/config.ps1` - Config management (Windows)
+- `.creator/config.sh` - Config management (macOS/Linux)
+- `.creator/placeholders.ps1` - Placeholder replacement (Windows)
+- `.creator/placeholders.sh` - Placeholder replacement (macOS/Linux)
 - `.gitignore` - Git ignore rules for LaTeX
 - `.latexmkrc` - Mermaid compilation configuration
 
